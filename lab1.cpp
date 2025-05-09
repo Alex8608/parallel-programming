@@ -5,60 +5,29 @@
 using namespace std;
 using namespace std::chrono;
 
+
 int main() {
-    int rows1, cols1, rows2, cols2;
-    cout << "Enter the dimensions of the first matrix (rows columns): ";
-    cin >> rows1 >> cols1;
-    cout << "Enter the dimensions of the second matrix (rows columns): ";
-    cin >> rows2 >> cols2;
+    const vector<int> dimension= {50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000};
+    vector<double> time(dimension.size(), 0.0);
+    for (int i = 0; i < dimension.size(); i++) {
+        const auto dim = dimension[i];
 
-    if (cols1 != rows2) {
-        cout << "Error: The number of columns in the first matrix must be equal to the number of rows in the second matrix.\n";
-        return 1;
+        save_matrix_to_file(generate_matrix(dim,dim), "./data/matrix1_"+to_string(dim)+".txt");
+        save_matrix_to_file(generate_matrix(dim,dim), "./data/matrix2_"+to_string(dim)+".txt");
+
+        auto start_time = steady_clock::now();
+        vector<vector<int>> matrix_1 = read_matrix_from_file("./data/matrix1_"+to_string(dim)+".txt");
+        vector<vector<int>> matrix_2 = read_matrix_from_file("./data/matrix2_"+to_string(dim)+".txt");
+        vector<vector<int>> result = matrix_multiplication(matrix_1, matrix_2);
+        save_matrix_to_file(result, "./data/result_" + to_string(dim) + ".txt");
+        auto end_time = steady_clock::now();
+
+        time[i] = duration<double, milli>(end_time - start_time).count();
     }
-
-    auto matrix1 = random_matrix::generate_matrix(rows1, cols1);
-    auto matrix2 = random_matrix::generate_matrix(rows2, cols2);
-
-    random_matrix::save_matrix_to_file(matrix1, "matrix1.txt");
-    random_matrix::save_matrix_to_file(matrix2, "matrix2.txt");
-
-    cout << "Matrices saved to files matrix1.txt and matrix2.txt\n";
-
-    int resultRows = rows1;
-    int resultCols = cols2;
-
-    // Умножение матриц
-    auto start = high_resolution_clock::now();
-    vector<vector<int>> result(resultRows, vector<int>(resultCols, 0));
-    for (int i = 0; i < resultRows; i++) {
-        for (int j = 0; j < resultCols; j++) {
-            for (int k = 0; k < cols1; k++) {
-                result[i][j] += matrix1[i][k] * matrix2[k][j];
-            }
-        }
+    ofstream out("stats_1.txt");
+    for (size_t i = 0; i < dimension.size(); i++) {
+        out << dimension[i] << ": " << (time[i]) << "\n";
     }
-    auto end = high_resolution_clock::now();
-
-    // Запись результата в файл
-    ofstream outputFile("result.txt");
-    outputFile << resultRows << " " << resultCols << "\n";
-    for (int i = 0; i < resultRows; i++) {
-        for (int j = 0; j < resultCols; j++) {
-            outputFile << result[i][j] << " ";
-        }
-        outputFile << "\n";
-    }
-    outputFile.close();
-
-    // Вывод информации
-    auto duration = duration_cast<microseconds>(end - start).count();
-    int taskSize = rows1 * cols1 + rows2 * cols2 + resultRows * resultCols;
-    cout << "Execution time: " << duration << " microseconds\n";
-    cout << "Task size: " << taskSize << " elements\n";
-
-    // Верификация результата с помощью Python
-    system("python verify_result.py");
 
     return 0;
 }
