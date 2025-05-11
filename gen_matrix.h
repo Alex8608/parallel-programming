@@ -61,3 +61,17 @@ inline std::vector<std::vector<int>> matrix_multiplication(const std::vector<std
     }
     return result;
 }
+
+inline std::vector<std::vector<int>> matrix_multiplication_omp(const std::vector<std::vector<int>>& matrix1, const std::vector<std::vector<int>>& matrix2) {
+    const size_t size = matrix1.size();
+    std::vector<std::vector<int>> result(size, std::vector<int>(size, 0));
+#pragma omp parallel for schedule(dynamic)
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            for (int k = 0; k < size; k++) {
+                result[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+    return result;
+}
