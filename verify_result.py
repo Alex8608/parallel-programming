@@ -5,7 +5,8 @@ for dim in dimension:
     matrix1 = np.loadtxt(f"./data/matrix1_{dim}.txt")
     matrix2 = np.loadtxt(f"./data/matrix2_{dim}.txt")
     #result = np.loadtxt(f"./data/result_{dim}.txt")
-    result = np.loadtxt(f"./data/result_opm_{dim}.txt")
+    #result = np.loadtxt(f"./data/result_opm_{dim}.txt")
+    result = np.loadtxt(f"./data/result_mpi_{dim}.txt")
     list_of_trues.append(np.array_equal(result, np.dot(matrix1, matrix2)))
 if all(list_of_trues):
     print("All matrices equal")
